@@ -64,6 +64,7 @@ HTML_TEMPLATE = """
 
 
 def get_context(message=""):
+    """Get the context data for rendering the HTML template."""
     data = tracker.load_data()
     activities = sorted(data["activities"])
     running = data["running"]
@@ -79,10 +80,12 @@ def get_context(message=""):
 
 @app.route("/", methods=["GET"])
 def index():
+    """Render the main page with the current activities and tracking status."""
     return render_template_string(HTML_TEMPLATE, **get_context(request.args.get("msg", "")))
 
 @app.route("/add", methods=["POST"])
 def add():
+    """Handle adding a new activity and redirect back to the main page with a status message."""
     try:
         tracker.add_activity(request.form.get("name", ""))
         return redirect(url_for("index", msg="Activity added"))
@@ -91,6 +94,7 @@ def add():
 
 @app.route("/start", methods=["POST"])
 def start():
+    """Handle starting an activity and redirect back to the main page with a status message."""
     try:
         tracker.start_activity(request.form.get("activity", ""))
         return redirect(url_for("index", msg="Tracking started"))
@@ -99,14 +103,19 @@ def start():
 
 @app.route("/stop", methods=["POST"])
 def stop():
+    """Handle stopping the current activity and 
+    redirect back to the main page with a status message."""
     try:
         entry = tracker.stop_activity()
-        return redirect(url_for("index", msg=f"Stopped {entry['activity']} ({entry['duration_seconds']}s)"))
+        return redirect(url_for("index",
+                                msg=f"Stopped {entry['activity']} ({entry['duration_seconds']}s)"))
     except (ValueError, KeyError) as exc:
         return redirect(url_for("index", msg=f"Error: {exc}"))
 
 @app.route("/export", methods=["POST"])
 def export():
+    """Handle exporting the monthly CSV report and 
+    redirect back to the main page with a status message."""
     try:
         month_value = request.form.get("month", "")
         year_str, month_str = month_value.split("-")
