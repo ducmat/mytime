@@ -1,0 +1,19 @@
+# .copilot-skills.yaml
+# This file defines coding skills and rules for this repository.
+
+skills:
+  - name: Indentation
+    description: |
+      Use 4 spaces per indentation level (PEP8 standard for Python). No tabs allowed.
+  - name: Pylint Compliance
+    description: |
+      All code must pass pylint with a score of at least 9.0/10. No unused imports or variables. All functions and classes must have docstrings. Variable and function names must be descriptive and follow snake_case. Class names must use CamelCase. No broad except: clauses; always specify the exception type. Limit line length to 100 characters. Avoid global variables unless absolutely necessary.
+  - name: General Python Style
+    description: |
+      Follow PEP8 for formatting and naming. Use type hints for all function signatures. Prefer list comprehensions over map/filter when possible. Use pathlib for file paths.
+  - name: Testing
+    description: |
+      All new features must have pytest-based tests. Tests should cover edge cases and error handling.
+  - name: Documentation
+    description: |
+      All public functions, classes, and modules must have docstrings.

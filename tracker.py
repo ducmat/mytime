@@ -35,6 +35,45 @@ class TimeTracker:
     start/stop tracking, and export monthly reports.
     """
 
+    def export_monthly_summary_csv(self, year: int, month: int, output_path: str | Path) -> int:
+        """
+        Export a summary of total hours per activity for a given month to a CSV file.
+
+        Args:
+            year (int): The year to export.
+            month (int): The month to export.
+            output_path (str | Path): Path to the output CSV file.
+
+        Returns:
+            int: Number of activities in the summary.
+        """
+        entries = self.monthly_entries(year, month)
+        summary = {}
+        for entry in entries:
+            activity = entry["activity"]
+            summary.setdefault(activity, 0)
+            summary[activity] += entry["duration_seconds"]
+
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        with output_file.open("w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(
+                csvfile,
+                fieldnames=["activity", "total_seconds", "total_hours"],
+            )
+            writer.writeheader()
+            for activity, total_seconds in summary.items():
+                writer.writerow(
+                    {
+                        "activity": activity,
+                        "total_seconds": total_seconds,
+                        "total_hours": f"{total_seconds / 3600:.2f}",
+                    }
+                )
+
+        return len(summary)
+
     def __init__(self, db_path: str | Path = "mytime.yml") -> None:
         """
         Initialize the TimeTracker.
