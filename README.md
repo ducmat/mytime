@@ -19,6 +19,8 @@ Then open: `http://127.0.0.1:8000`
 
 ## Test
 
+Run all tests using pytest:
+
 ```bash
-python -m unittest discover -s tests -q
+pytest
 ```
