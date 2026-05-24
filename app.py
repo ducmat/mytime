@@ -28,35 +28,35 @@ tracker = TimeTracker("mytime.yml")
 
 
 class MyTimeHandler(BaseHTTPRequestHandler):
+  """
+  HTTP request handler for the MyTime Tracker web application.
+  Handles GET and POST requests for activity management, tracking, and exporting reports.
+  """
+
+  def do_GET(self) -> None:
     """
-    HTTP request handler for the MyTime Tracker web application.
-    Handles GET and POST requests for activity management, tracking, and exporting reports.
+    Handle GET requests.
+    Renders the main HTML page with activity list, tracking status, and forms for user actions.
     """
-    def do_GET(self) -> None:
-      """
-      Handle GET requests.
-      Renders the main HTML page with activity list, tracking status, and forms for user actions.
-      """
-        parsed = urlparse(self.path)
-        query = parse_qs(parsed.query)
-        message = query.get("msg", [""])[0]
+    parsed = urlparse(self.path)
+    query = parse_qs(parsed.query)
+    message = query.get("msg", [""])[0]
 
-        data = tracker.load_data()
-        activities = sorted(data["activities"])
-        running = data["running"]
+    data = tracker.load_data()
+    activities = sorted(data["activities"])
+    running = data["running"]
 
-
-        options = "".join(
-          f'<option value="{a}">{a}</option>' for a in activities
-        )
-        if running:
-          running_text = (
+    options = "".join(
+        f'<option value="{a}">{a}</option>' for a in activities
+    )
+    if running:
+        running_text = (
             f"Running: {running['activity']} (started {running['start']})"
-          )
-        else:
-          running_text = "No activity running"
+        )
+    else:
+        running_text = "No activity running"
 
-        html = f"""
+    html = f"""
 <!doctype html>
 <html>
 <head>
@@ -108,79 +108,79 @@ class MyTimeHandler(BaseHTTPRequestHandler):
 </html>
 """
 
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
-        self.end_headers()
-        self.wfile.write(html.encode("utf-8"))
+    self.send_response(200)
+    self.send_header("Content-Type", "text/html; charset=utf-8")
+    self.end_headers()
+    self.wfile.write(html.encode("utf-8"))
 
-    def do_POST(self) -> None:
-      """
-      Handle POST requests for adding activities, starting/stopping tracking, and exporting reports.
-      Redirects to the main page with a status message.
-      """
-        length = int(self.headers.get("Content-Length", "0"))
-        body = self.rfile.read(length).decode("utf-8")
-        form = parse_qs(body)
+  def do_POST(self) -> None:
+    """
+    Handle POST requests for adding activities, starting/stopping tracking, and exporting reports.
+    Redirects to the main page with a status message.
+    """
+    length = int(self.headers.get("Content-Length", "0"))
+    body = self.rfile.read(length).decode("utf-8")
+    form = parse_qs(body)
 
-        try:
-            if self.path == "/add":
-                tracker.add_activity(form.get("name", [""])[0])
-                self._redirect("Activity added")
-                return
-
-            if self.path == "/start":
-                tracker.start_activity(form.get("activity", [""])[0])
-                self._redirect("Tracking started")
-                return
-
-            if self.path == "/stop":
-                entry = tracker.stop_activity()
-                self._redirect(f"Stopped {entry['activity']} ({entry['duration_seconds']}s)")
-                return
-
-            if self.path == "/export":
-                month_value = form.get("month", [""])[0]
-                year_str, month_str = month_value.split("-")
-                year, month = int(year_str), int(month_str)
-                report_path = Path("reports") / f"report-{year:04d}-{month:02d}.csv"
-                count = tracker.export_monthly_csv(year, month, report_path)
-                self._redirect(f"Exported {count} entries to {report_path}")
-                return
-
-            self.send_error(404, "Unknown endpoint")
-        except Exception as exc:
-            self._redirect(f"Error: {exc}")
-
-    def log_message(self, format: str, *args: object) -> None:
-      """
-      Override to suppress default logging output to stderr.
-      """
+    try:
+      if self.path == "/add":
+        tracker.add_activity(form.get("name", [""])[0])
+        self._redirect("Activity added")
         return
 
-    def _redirect(self, message: str) -> None:
-        """
-        Redirect the client to the main page with a status message.
+      if self.path == "/start":
+        tracker.start_activity(form.get("activity", [""])[0])
+        self._redirect("Tracking started")
+        return
 
-        Args:
-            message (str): Message to display on the main page.
-        """
-        self.send_response(303)
-        self.send_header("Location", f"/?{urlencode({'msg': message})}")
-        self.end_headers()
+      if self.path == "/stop":
+        entry = tracker.stop_activity()
+        self._redirect(f"Stopped {entry['activity']} ({entry['duration_seconds']}s)")
+        return
+
+      if self.path == "/export":
+        month_value = form.get("month", [""])[0]
+        year_str, month_str = month_value.split("-")
+        year, month = int(year_str), int(month_str)
+        report_path = Path("reports") / f"report-{year:04d}-{month:02d}.csv"
+        count = tracker.export_monthly_csv(year, month, report_path)
+        self._redirect(f"Exported {count} entries to {report_path}")
+        return
+
+      self.send_error(404, "Unknown endpoint")
+    except Exception as exc:
+      self._redirect(f"Error: {exc}")
+
+  def log_message(self, format: str, *args: object) -> None:
+    """
+    Override to suppress default logging output to stderr.
+    """
+    return
+
+  def _redirect(self, message: str) -> None:
+    """
+    Redirect the client to the main page with a status message.
+
+    Args:
+      message (str): Message to display on the main page.
+    """
+    self.send_response(303)
+    self.send_header("Location", f"/?{urlencode({'msg': message})}")
+    self.end_headers()
 
 
 
 def run(host: str = "127.0.0.1", port: int = 8000) -> None:
-    """
-    Start the HTTP server for the MyTime Tracker web application.
+  """
+  Start the HTTP server for the MyTime Tracker web application.
 
-    Args:
-        host (str): Host address to bind the server. Defaults to "127.0.0.1".
-        port (int): Port number to listen on. Defaults to 8000.
-    """
-    server = HTTPServer((host, port), MyTimeHandler)
-    print(f"MyTime running on http://{host}:{port}")
-    server.serve_forever()
+  Args:
+    host (str): Host address to bind the server. Defaults to "127.0.0.1".
+    port (int): Port number to listen on. Defaults to 8000.
+  """
+  server = HTTPServer((host, port), MyTimeHandler)
+  print(f"MyTime running on http://{host}:{port}")
+  server.serve_forever()
 
 
 if __name__ == "__main__":
