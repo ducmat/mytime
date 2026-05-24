@@ -3,8 +3,8 @@ Flask-based version of the MyTime Tracker web application.
 This version provides the same endpoints and HTML as the BaseHTTPRequestHandler version,
 but uses Flask for routing and rendering.
 """
-from flask import Flask, render_template_string, request, redirect, url_for
 from pathlib import Path
+from flask import Flask, render_template_string, request, redirect, url_for
 from tracker import TimeTracker
 
 app = Flask(__name__)
@@ -72,11 +72,11 @@ def get_context(message=""):
         running_text = f"Running: {running['activity']} (started {running['start']})"
     else:
         running_text = "No activity running"
-    return dict(
-        message=message,
-        activities=activities,
-        running_text=running_text,
-    )
+    return {
+        "message": message,
+        "activities": activities,
+        "running_text": running_text,
+    }
 
 @app.route("/", methods=["GET"])
 def index():
