@@ -1,3 +1,19 @@
+
+"""
+MyTime Tracker Web Application
+-----------------------------
+This module provides a simple web interface for tracking activities and time using the TimeTracker class.
+It allows users to add activities, start/stop tracking, and export monthly reports as CSV files.
+
+Endpoints:
+  - GET /         : Main page with activity list and tracking status
+  - POST /add     : Add a new activity
+  - POST /start   : Start tracking an activity
+  - POST /stop    : Stop the current activity
+  - POST /export  : Export monthly CSV report
+
+Run this module directly to start the HTTP server on localhost:8000.
+"""
 from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -20,9 +36,10 @@ class MyTimeHandler(BaseHTTPRequestHandler):
         running = data["running"]
 
         options = "".join(f'<option value="{a}">{a}</option>' for a in activities)
-        running_text = (
-            f"Running: {running['activity']} (started {running['start']})" if running else "No activity running"
-        )
+        if running:
+            running_text = f"Running: {running['activity']} (started {running['start']})"
+        else:
+            running_text = "No activity running"
 
         html = f"""
 <!doctype html>
