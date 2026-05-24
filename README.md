@@ -1,6 +1,10 @@
 # mytime
 Time recorder
 
+[![Build and Test Python application](https://github.com/ducmat/mytime/actions/workflows/python-app.yml/badge.svg)](https://github.com/ducmat/mytime/actions/workflows/python-app.yml)
+
+[![Pylint](https://github.com/ducmat/mytime/actions/workflows/pylint.yml/badge.svg)](https://github.com/ducmat/mytime/actions/workflows/pylint.yml)
+
 ## Run
 
 ```bash
