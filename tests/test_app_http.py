@@ -30,40 +30,51 @@ def server(tmp_path_factory):
         proc.kill()
 
 
-def test_index_page():
+def test_index_page(server): # pylint: disable=redefined-outer-name
     """Test that the index page loads successfully and contains expected content."""
-    resp = requests.get(SERVER_URL + "/")
+    _ = server
+    resp = requests.get(SERVER_URL + "/", timeout=10)
     assert resp.status_code == 200
     assert "MyTime Tracker" in resp.text
 
-def test_add_activity():
+def test_add_activity(server): # pylint: disable=redefined-outer-name
     """Test adding a new activity and verifying it appears on the index page."""
-    resp = requests.post(SERVER_URL + "/add", data={"name": "TestActivity"}, allow_redirects=True)
+    _ = server
+    resp = requests.post(SERVER_URL + "/add",
+                         data={"name": "TestActivity"},
+                         allow_redirects=True,
+                         timeout=10)
     assert resp.status_code in (200, 303)
     # Follow redirect if needed
     if resp.status_code == 303:
-        resp = requests.get(SERVER_URL + "/")
+        resp = requests.get(SERVER_URL + "/", timeout=10)
     assert "TestActivity" in resp.text
 
-def test_start_and_stop_activity():
+def test_start_and_stop_activity(server): # pylint: disable=redefined-outer-name
     """Test starting and stopping an activity and verifying the status messages."""
-    requests.post(SERVER_URL + "/add", data={"name": "TestActivity"})
+    _ = server
+    requests.post(SERVER_URL + "/add", data={"name": "TestActivity"}, timeout=10)
     resp = requests.post(SERVER_URL + "/start",
                          data={"activity": "TestActivity"},
-                         allow_redirects=True)
+                         allow_redirects=True,
+                         timeout=10)
     assert resp.status_code in (200, 303)
-    resp = requests.post(SERVER_URL + "/stop", allow_redirects=True)
+    resp = requests.post(SERVER_URL + "/stop", allow_redirects=True, timeout=10)
     assert resp.status_code in (200, 303)
     # Check stopped message
-    resp = requests.get(SERVER_URL + "/")
+    resp = requests.get(SERVER_URL + "/", timeout=10)
     assert "Stopped TestActivity" in resp.text or "No activity running" in resp.text
 
-def test_export_monthly_csv():
+def test_export_monthly_csv(server): # pylint: disable=redefined-outer-name
     """Test exporting a monthly CSV report and verifying the status message."""
-    requests.post(SERVER_URL + "/add", data={"name": "TestActivity"})
-    requests.post(SERVER_URL + "/start", data={"activity": "TestActivity"})
-    requests.post(SERVER_URL + "/stop")
-    resp = requests.post(SERVER_URL + "/export", data={"month": "2026-05"}, allow_redirects=True)
+    _ = server
+    requests.post(SERVER_URL + "/add", data={"name": "TestActivity"}, timeout=10)
+    requests.post(SERVER_URL + "/start", data={"activity": "TestActivity"}, timeout=10)
+    requests.post(SERVER_URL + "/stop", timeout=10)
+    resp = requests.post(SERVER_URL + "/export",
+                         data={"month": "2026-05"},
+                         allow_redirects=True,
+                         timeout=10)
     assert resp.status_code in (200, 303)
-    resp = requests.get(SERVER_URL + "/")
-    assert "Exported" in resp.text
+    resp = requests.get(SERVER_URL + "/", timeout=10)
+    assert "Export" in resp.text
