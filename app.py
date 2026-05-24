@@ -2,8 +2,10 @@
 """
 MyTime Tracker Web Application
 -----------------------------
-This module provides a simple web interface for tracking activities and time using the TimeTracker class.
-It allows users to add activities, start/stop tracking, and export monthly reports as CSV files.
+This module provides a simple web interface for tracking activities and time using the
+TimeTracker class.
+It allows users to add activities, start/stop tracking, and export monthly reports 
+as CSV files.
 
 Endpoints:
   - GET /         : Main page with activity list and tracking status
@@ -26,7 +28,15 @@ tracker = TimeTracker("mytime.yml")
 
 
 class MyTimeHandler(BaseHTTPRequestHandler):
+    """
+    HTTP request handler for the MyTime Tracker web application.
+    Handles GET and POST requests for activity management, tracking, and exporting reports.
+    """
     def do_GET(self) -> None:
+      """
+      Handle GET requests.
+      Renders the main HTML page with activity list, tracking status, and forms for user actions.
+      """
         parsed = urlparse(self.path)
         query = parse_qs(parsed.query)
         message = query.get("msg", [""])[0]
@@ -35,11 +45,16 @@ class MyTimeHandler(BaseHTTPRequestHandler):
         activities = sorted(data["activities"])
         running = data["running"]
 
-        options = "".join(f'<option value="{a}">{a}</option>' for a in activities)
+
+        options = "".join(
+          f'<option value="{a}">{a}</option>' for a in activities
+        )
         if running:
-            running_text = f"Running: {running['activity']} (started {running['start']})"
+          running_text = (
+            f"Running: {running['activity']} (started {running['start']})"
+          )
         else:
-            running_text = "No activity running"
+          running_text = "No activity running"
 
         html = f"""
 <!doctype html>
@@ -99,6 +114,10 @@ class MyTimeHandler(BaseHTTPRequestHandler):
         self.wfile.write(html.encode("utf-8"))
 
     def do_POST(self) -> None:
+      """
+      Handle POST requests for adding activities, starting/stopping tracking, and exporting reports.
+      Redirects to the main page with a status message.
+      """
         length = int(self.headers.get("Content-Length", "0"))
         body = self.rfile.read(length).decode("utf-8")
         form = parse_qs(body)
@@ -133,15 +152,32 @@ class MyTimeHandler(BaseHTTPRequestHandler):
             self._redirect(f"Error: {exc}")
 
     def log_message(self, format: str, *args: object) -> None:
+      """
+      Override to suppress default logging output to stderr.
+      """
         return
 
     def _redirect(self, message: str) -> None:
+        """
+        Redirect the client to the main page with a status message.
+
+        Args:
+            message (str): Message to display on the main page.
+        """
         self.send_response(303)
         self.send_header("Location", f"/?{urlencode({'msg': message})}")
         self.end_headers()
 
 
+
 def run(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """
+    Start the HTTP server for the MyTime Tracker web application.
+
+    Args:
+        host (str): Host address to bind the server. Defaults to "127.0.0.1".
+        port (int): Port number to listen on. Defaults to 8000.
+    """
     server = HTTPServer((host, port), MyTimeHandler)
     print(f"MyTime running on http://{host}:{port}")
     server.serve_forever()
