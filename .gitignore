@@ -220,3 +220,4 @@ __marimo__/
 # MyTime runtime data
 mytime.yml
 reports/
+.vscode/settings.json
