@@ -1,10 +1,10 @@
 """
 Integration tests for the BaseHTTPRequestHandler version of the MyTime Tracker app.
 """
+import os
 import subprocess
 import time
 import requests
-import os
 import pytest
 
 SERVER_HOST = "127.0.0.1"
@@ -17,17 +17,17 @@ def server(tmp_path_factory):
     tmp_dir = tmp_path_factory.mktemp("mytime_http")
     env = os.environ.copy()
     env["MYTIME_DB"] = str(tmp_dir / "mytime.yml")
-    proc = subprocess.Popen([
+    with subprocess.Popen([
         "python", "app.py"
-    ], cwd=os.path.dirname(__file__) + "/..", env=env)
-    # Wait for server to start
-    time.sleep(1.5)
-    yield
-    proc.terminate()
-    try:
-        proc.wait(timeout=3)
-    except subprocess.TimeoutExpired:
-        proc.kill()
+    ], cwd=os.path.dirname(__file__) + "/..", env=env) as proc:
+        # Wait for server to start
+        time.sleep(1.5)
+        yield
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            proc.kill()
 
 
 def test_index_page(server): # pylint: disable=redefined-outer-name
