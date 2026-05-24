@@ -36,6 +36,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --tb=short --maxfail=5 | tee result.log
+        pytest --tb=short | tee result.log
+        status=${PIPESTATUS[0]}
         echo '### Pytest Results' >> $GITHUB_STEP_SUMMARY
         tail -n 50 result.log >> $GITHUB_STEP_SUMMARY
+        exit $status
