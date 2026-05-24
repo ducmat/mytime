@@ -13,7 +13,7 @@ def test_add_start_stop_and_persist(tmp_path):
     """
     Test adding an activity, starting and stopping it, and persisting the data.
     """
-    db = tmp_path / "mytime.yml"
+    db = tmp_path / "test_mytime.yml"
     tracker = TimeTracker(db)
 
     tracker.add_activity("Coding")
@@ -31,7 +31,7 @@ def test_export_monthly_csv(tmp_path):
     """
     Test exporting a monthly CSV report and verify its contents.
     """
-    db = tmp_path / "mytime.yml"
+    db = tmp_path / "test_mytime.yml"
     tracker = TimeTracker(db)
 
     tracker.start_activity("Planning", now=datetime(2026, 5, 1, 8, 0, 0))

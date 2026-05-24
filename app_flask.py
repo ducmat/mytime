@@ -182,11 +182,8 @@ def export():
         tracker.export_monthly_csv(year, month, detailed_path)
         # Generate summary table in memory
         entries = tracker.monthly_entries(year, month)
-        summary = {}
-        for entry in entries:
-            activity = entry["activity"]
-            summary.setdefault(activity, 0)
-            summary[activity] += entry["duration_seconds"]
+        summary = tracker.create_summary(entries)  # Ensure summary is created for the template   
+
         summary_table = [
         {
             "activity": activity,

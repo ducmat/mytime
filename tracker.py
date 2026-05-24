@@ -35,6 +35,22 @@ class TimeTracker:
     start/stop tracking, and export monthly reports.
     """
 
+    def create_summary(self, entries):
+        """
+        Create a summary string of total hours per activity for a given month.
+
+        Args:
+            entries (list): List of time entries for the month.
+        Returns:
+            dict: A dictionary with activities as keys and total seconds as values.
+        """
+        summary = {}
+        for entry in entries:
+            activity = entry["activity"]
+            summary.setdefault(activity, 0)
+            summary[activity] += entry["duration_seconds"]
+        return summary
+    
     def export_monthly_summary_csv(self, year: int, month: int, output_path: str | Path) -> int:
         """
         Export a summary of total hours per activity for a given month to a CSV file.
@@ -48,11 +64,7 @@ class TimeTracker:
             int: Number of activities in the summary.
         """
         entries = self.monthly_entries(year, month)
-        summary = {}
-        for entry in entries:
-            activity = entry["activity"]
-            summary.setdefault(activity, 0)
-            summary[activity] += entry["duration_seconds"]
+        summary = self.create_summary(entries)
 
         output_file = Path(output_path)
         output_file.parent.mkdir(parents=True, exist_ok=True)
