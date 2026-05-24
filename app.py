@@ -114,7 +114,8 @@ class MyTimeHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None: # pylint: disable=invalid-name
         """
-        Handle POST requests for adding activities, starting/stopping tracking, and exporting reports.
+        Handle POST requests for adding activities, starting/stopping tracking,
+         and exporting reports.
         Redirects to the main page with a status message.
         """
         length = int(self.headers.get("Content-Length", "0"))
@@ -122,33 +123,33 @@ class MyTimeHandler(BaseHTTPRequestHandler):
         form = parse_qs(body)
 
         try:
-            if self.path == "/add":
-                tracker.add_activity(form.get("name", [""])[0])
-                self._redirect("Activity added")
-                return
+          if self.path == "/add":
+            tracker.add_activity(form.get("name", [""])[0])
+            self._redirect("Activity added")
+            return
 
-            if self.path == "/start":
-                tracker.start_activity(form.get("activity", [""])[0])
-                self._redirect("Tracking started")
-                return
+          if self.path == "/start":
+            tracker.start_activity(form.get("activity", [""])[0])
+            self._redirect("Tracking started")
+            return
 
-            if self.path == "/stop":
-                entry = tracker.stop_activity()
-                self._redirect(f"Stopped {entry['activity']} ({entry['duration_seconds']}s)")
-                return
+          if self.path == "/stop":
+            entry = tracker.stop_activity()
+            self._redirect(f"Stopped {entry['activity']} ({entry['duration_seconds']}s)")
+            return
 
-            if self.path == "/export":
-                month_value = form.get("month", [""])[0]
-                year_str, month_str = month_value.split("-")
-                year, month = int(year_str), int(month_str)
-                report_path = Path("reports") / f"report-{year:04d}-{month:02d}.csv"
-                count = tracker.export_monthly_csv(year, month, report_path)
-                self._redirect(f"Exported {count} entries to {report_path}")
-                return
+          if self.path == "/export":
+            month_value = form.get("month", [""])[0]
+            year_str, month_str = month_value.split("-")
+            year, month = int(year_str), int(month_str)
+            report_path = Path("reports") / f"report-{year:04d}-{month:02d}.csv"
+            count = tracker.export_monthly_csv(year, month, report_path)
+            self._redirect(f"Exported {count} entries to {report_path}")
+            return
 
-            self.send_error(404, "Unknown endpoint")
-        except Exception as exc:
-            self._redirect(f"Error: {exc}")
+          self.send_error(404, "Unknown endpoint")
+        except (ValueError, KeyError) as exc:
+          self._redirect(f"Error: {exc}")
 
     def _redirect(self, message: str) -> None:
         """
