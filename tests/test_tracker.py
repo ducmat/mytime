@@ -1,3 +1,7 @@
+"""
+Unit tests for the TimeTracker class.
+Tests activity addition, tracking, persistence, and CSV export functionality.
+"""
 import csv
 import tempfile
 import unittest
@@ -8,7 +12,13 @@ from tracker import TimeTracker
 
 
 class TimeTrackerTests(unittest.TestCase):
+    """
+    Unit tests for the TimeTracker class covering activity management and reporting.
+    """
     def test_add_start_stop_and_persist(self):
+        """
+        Test adding an activity, starting and stopping it, and persisting the data.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             db = Path(tmp) / "mytime.yml"
             tracker = TimeTracker(db)
@@ -24,6 +34,9 @@ class TimeTrackerTests(unittest.TestCase):
             self.assertIsNone(tracker.load_data()["running"])
 
     def test_export_monthly_csv(self):
+        """
+        Test exporting a monthly CSV report and verify its contents.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             db = Path(tmp) / "mytime.yml"
             tracker = TimeTracker(db)

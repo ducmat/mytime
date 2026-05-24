@@ -2,8 +2,10 @@
 """
 TimeTracker Class for Activity Logging
 -------------------------------------
-This module defines the TimeTracker class, which manages activities, time entries, and running sessions.
-It supports adding activities, starting/stopping tracking, and exporting monthly reports to CSV.
+This module defines the TimeTracker class, which manages activities, time entries, 
+and running sessions.
+It supports adding activities, starting/stopping tracking, 
+and exporting monthly reports to CSV.
 
 Data is stored in a YAML file (default: mytime.yml) with the following structure:
     - activities: list of activity names
